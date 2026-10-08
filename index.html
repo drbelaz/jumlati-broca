@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#145F5A">
+<meta name="description" content="لوحة تواصل بديل ومعزّز بالعربية لمرضى حبسة بروكا">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="جملتي بالصور">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>جُمْلَتي بالصُّوَر – تواصل بروكا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;800&display=swap">
+<style>
+/* Layout: one-screen AAC board — fixed sentence strip on top (5 Fitzgerald-coloured slots, RTL), scrollable picture library below. */
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --surface2:#E2E8E7; --ink:#15232A; --ink2:#51636A; --line:#C9D3D1;
+  --accent:#145F5A; --accent2:#0E4B47; --accent-ink:#FFFFFF; --danger:#B9372B; --danger-ink:#FFFFFF; --ok:#2B7A4B;
+  /* modified Fitzgerald key used in AAC boards */
+  --who:#B98A10; --act:#2B8352; --obj:#C3621C; --where:#2C68A8; --when:#76509F; --say:#A9446D;
+  --whoT:#FBF2D8; --actT:#E2F2E8; --objT:#FBE9DA; --whereT:#E0EAF6; --whenT:#EDE5F5; --sayT:#F7E3EB;
+  --shadow:0 1px 2px rgba(20,40,40,.08),0 2px 8px rgba(20,40,40,.06);
+  --f-disp:"Noto Kufi Arabic","Segoe UI","Geeza Pro",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI","Geeza Pro",Tahoma,Arial,sans-serif;
+  --tile:150px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1618; --surface:#172225; --surface2:#203034; --ink:#E6EEEC; --ink2:#9DB0B3; --line:#2F4246;
+  --accent:#3FB3A8; --accent2:#5CC7BC; --accent-ink:#06201E; --danger:#E0594C; --danger-ink:#1A0604; --ok:#5CC48A;
+  --who:#E2B437; --act:#4FBF82; --obj:#EE8A45; --where:#5B9BE0; --when:#A889D4; --say:#D9789E;
+  --whoT:#2D2611; --actT:#132B1E; --objT:#2F1D10; --whereT:#13233A; --whenT:#241B33; --sayT:#2E1622;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1618; --surface:#172225; --surface2:#203034; --ink:#E6EEEC; --ink2:#9DB0B3; --line:#2F4246;
+  --accent:#3FB3A8; --accent2:#5CC7BC; --accent-ink:#06201E; --danger:#E0594C; --danger-ink:#1A0604; --ok:#5CC48A;
+  --who:#E2B437; --act:#4FBF82; --obj:#EE8A45; --where:#5B9BE0; --when:#A889D4; --say:#D9789E;
+  --whoT:#2D2611; --actT:#132B1E; --objT:#2F1D10; --whereT:#13233A; --whenT:#241B33; --sayT:#2E1622;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+#app{height:100%;display:grid;grid-template-rows:auto auto 1fr;grid-template-columns:minmax(0,1fr);max-width:1500px;margin:0 auto}
+.k-who{--c:var(--who);--t:var(--whoT)} .k-act{--c:var(--act);--t:var(--actT)} .k-obj{--c:var(--obj);--t:var(--objT)}
+.k-where{--c:var(--where);--t:var(--whereT)} .k-when{--c:var(--when);--t:var(--whenT)} .k-say{--c:var(--say);--t:var(--sayT)}
+
+/* header */
+.top{display:flex;align-items:center;gap:8px;padding:10px 16px 8px}
+.brand{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+.brand .mark{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;flex:none}
+.brand .mark i{display:block;width:7px;height:16px;border-radius:2px;margin:0 1px;background:var(--accent-ink)}
+.brand .mark span{display:flex;align-items:flex-end}
+.brand .mark span i:nth-child(1){height:10px;opacity:.7}.brand .mark span i:nth-child(3){height:12px;opacity:.85}
+.brand b{font-family:var(--f-disp);font-weight:800;font-size:19px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.brand small{display:block;color:var(--ink2);font-size:12.5px;font-weight:500}
+.brand .txt{min-width:0}
+.q{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;font-weight:700;font-size:17px;border:2px solid transparent;min-height:46px}
+.q.yes{background:var(--actT);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.q.no{background:var(--objT);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,transparent)}
+.q.sos{background:var(--danger);color:var(--danger-ink)}
+.ib{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--ink2);position:relative}
+.ib:hover{background:var(--surface2)}
+.ib.on{background:var(--accent);color:var(--accent-ink)}
+
+/* sentence strip */
+.bar{background:var(--surface);border-block:1px solid var(--line);padding:12px 16px;box-shadow:var(--shadow)}
+.slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.slot{position:relative;min-height:118px;border:2px dashed color-mix(in srgb,var(--c) 55%,var(--line));border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px;background:color-mix(in srgb,var(--t) 45%,var(--surface));min-width:0}
+.slot .qq{font-weight:700;color:var(--c);font-size:17px}
+.slot .hh{font-size:13px;color:var(--ink2)}
+.slot.filled{border-style:solid;border-color:var(--c);background:var(--t)}
+.slot.next{box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 30%,transparent)}
+.slot .pic{width:100%;height:60px;display:grid;place-items:center}
+.slot .pic img{height:60px;width:60px;object-fit:cover;border-radius:10px}
+.slot .pic .emo{font-size:44px;line-height:1}
+.slot .pic svg.body{height:60px;width:60px;color:var(--ink)}
+.slot .lb{font-weight:700;font-size:15px;text-align:center;line-height:1.25;max-width:100%;overflow-wrap:anywhere}
+.slot .tag{position:absolute;top:4px;inset-inline-start:8px;font-size:11px;font-weight:700;color:var(--c)}
+.mv{position:absolute;bottom:4px;display:flex;gap:4px;inset-inline:4px;justify-content:space-between}
+.mv button{width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center}
+.mv button svg{width:18px;height:18px}
+.sentence{font-size:24px;font-weight:700;line-height:1.5;min-height:1.5em;margin:10px 2px 10px;text-wrap:balance}
+.sentence.empty{color:var(--ink2);font-weight:500;font-size:17px}
+.bar.speaking .sentence{color:var(--accent)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.act{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:74px;padding:6px 8px;border-radius:12px;background:var(--surface2);font-size:13px;font-weight:600;min-height:58px}
+.act:hover{background:color-mix(in srgb,var(--surface2) 70%,var(--line))}
+.act.on{background:var(--accent);color:var(--accent-ink)}
+.act.speak{flex:1 1 220px;flex-direction:row;gap:10px;background:var(--accent);color:var(--accent-ink);font-size:21px;font-weight:700;font-family:var(--f-disp)}
+.act.speak:hover{background:var(--accent2)}
+.act.speak svg{width:30px;height:30px}
+
+/* main area */
+main{overflow:auto;padding:16px 16px 40px;min-height:0}
+.crumb{display:flex;align-items:center;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+.crumb h2{font-family:var(--f-disp);font-weight:800;font-size:22px;margin:0;flex:1;min-width:0;text-wrap:balance}
+.crumb .gi{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:26px;background:color-mix(in srgb,var(--g) 18%,var(--surface))}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:11px;background:var(--surface2);font-weight:600;min-height:44px}
+.btn.pri{background:var(--accent);color:var(--accent-ink)}
+.btn.dan{background:var(--danger);color:var(--danger-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+h3.sec{font-size:15px;font-weight:700;color:var(--ink2);margin:22px 0 10px;display:flex;align-items:center;gap:8px;letter-spacing:.2px}
+h3.sec:first-of-type{margin-top:4px}
+h3.sec i{width:12px;height:12px;border-radius:3px;background:var(--c);display:inline-block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tile),1fr));gap:12px}
+.tile{position:relative;aspect-ratio:1/1.08;max-width:100%;border-radius:16px;border:2px solid color-mix(in srgb,var(--c) 70%,transparent);background:var(--surface);
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px 10px;box-shadow:var(--shadow);transition:transform .08s}
+.tile:active{transform:scale(.97)}
+.tile .pic{flex:1;width:100%;min-height:0;display:grid;place-items:center;overflow:hidden;border-radius:10px}
+.tile .pic img{width:100%;height:100%;object-fit:cover}
+.tile .pic .emo{font-size:calc(var(--tile) * .4);line-height:1}
+.tile .pic svg.body{height:100%;max-height:calc(var(--tile)*.62);color:var(--ink)}
+.tile .lbl{font-weight:700;font-size:17px;text-align:center;line-height:1.25;overflow-wrap:anywhere}
+.tile.say{background:var(--t)}
+.tile.sos{border-color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,var(--surface))}
+.tile.hid{opacity:.45;border-style:dashed}
+.tile .badge{position:absolute;top:6px;inset-inline-start:6px;font-size:11px;font-weight:700;background:var(--surface2);border-radius:6px;padding:1px 6px}
+.tile .rec{position:absolute;top:6px;inset-inline-end:6px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.tile .rec svg{width:13px;height:13px}
+.tile.add{border:2px dashed var(--line);box-shadow:none;background:transparent;color:var(--ink2);justify-content:center}
+.tile.add svg{width:40px;height:40px}
+body.notext .tile .lbl, body.notext .slot .lb{display:none}
+body.notext .tile .pic .emo{font-size:calc(var(--tile) * .5)}
+.edit .tile:not(.add)::after{content:"";position:absolute;inset:-2px;border-radius:16px;border:2px dashed var(--accent);pointer-events:none}
+
+.gtile{border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:14px;box-shadow:var(--shadow);min-height:84px;text-align:start;position:relative}
+.gtile .gi{width:56px;height:56px;flex:none;border-radius:14px;display:grid;place-items:center;font-size:32px;background:color-mix(in srgb,var(--g) 16%,var(--surface));border:2px solid color-mix(in srgb,var(--g) 55%,transparent)}
+.gtile .gi img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.gtile .gi{overflow:hidden}
+.gtile b{font-size:18px;font-weight:700;line-height:1.3;display:block}
+.gtile small{color:var(--ink2);font-size:13px}
+.gtile.hid{opacity:.45}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.hint{color:var(--ink2);font-size:14px;line-height:1.6;max-width:70ch;margin:0 0 12px}
+
+/* sentence cards (favourites/history) */
+.slist{display:grid;gap:10px;max-width:980px}
+.scard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.scard .mini{display:flex;gap:6px;flex-wrap:wrap}
+.scard .mini span{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-size:28px;background:var(--t);border:2px solid var(--c);overflow:hidden}
+.scard .mini img{width:100%;height:100%;object-fit:cover}
+.scard .mini svg.body{width:40px;height:40px;color:var(--ink)}
+.scard .st{flex:1 1 220px;min-width:0;font-size:19px;font-weight:700;line-height:1.4}
+.scard .ops{display:flex;gap:6px}
+.empty-st{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:22px;color:var(--ink2);max-width:640px;line-height:1.7}
+
+/* settings */
+.set{max-width:760px;display:grid;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h4{margin:0 0 10px;font-size:17px;font-family:var(--f-disp);font-weight:800}
+.row{display:flex;align-items:center;gap:12px;padding:8px 0;flex-wrap:wrap}
+.row label{flex:1;min-width:180px;font-weight:600}
+.row small{display:block;color:var(--ink2);font-weight:400;font-size:13px}
+input[type=text],input[type=password],select{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;max-width:100%}
+.seg{display:inline-flex;background:var(--surface2);border-radius:11px;padding:3px;gap:2px}
+.seg button{padding:8px 14px;border-radius:9px;font-weight:600}
+.seg button.on{background:var(--surface);box-shadow:var(--shadow)}
+.sw{width:54px;height:32px;border-radius:20px;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:26px;height:26px;border-radius:50%;background:var(--surface);transition:inset-inline-start .15s}
+.sw.on{background:var(--accent)} .sw.on::after{inset-inline-start:25px}
+.warn{background:color-mix(in srgb,var(--who) 18%,var(--surface));border:1px solid color-mix(in srgb,var(--who) 50%,transparent);border-radius:12px;padding:12px 14px;line-height:1.6;font-size:14.5px}
+
+/* modal */
+.mback{position:fixed;inset:0;background:rgba(8,18,20,.5);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{background:var(--surface);color:var(--ink);border-radius:18px;width:min(600px,100%);max-height:92%;overflow:auto;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal h3{font-family:var(--f-disp);font-weight:800;font-size:20px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.modal h3 span{flex:1}
+.fld{display:grid;gap:6px;margin-bottom:14px}
+.fld > span{font-weight:700;font-size:14.5px}
+.fld input,.fld select{width:100%}
+.prev{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.prev .pv{width:96px;height:96px;border-radius:14px;border:2px solid var(--line);display:grid;place-items:center;font-size:56px;overflow:hidden;background:var(--bg)}
+.prev .pv img{width:100%;height:100%;object-fit:cover}
+.prev .pv svg.body{width:80px;height:80px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:14px;display:inline-flex;gap:4px;align-items:center}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatches button{width:34px;height:34px;border-radius:50%;border:3px solid transparent}
+.swatches button.on{border-color:var(--ink)}
+.mfoot{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.mfoot div{display:flex;gap:8px;flex-wrap:wrap}
+.pin{font-size:28px;letter-spacing:10px;text-align:center;width:100%}
+.recdot{width:10px;height:10px;border-radius:50%;background:var(--danger);display:inline-block;animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.2}}
+
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.flash{animation:fl .6s}
+@keyframes fl{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+body.sz-s{--tile:120px} body.sz-l{--tile:190px}
+@media (max-width:760px){
+  .brand small{display:none}
+  .top .lbl-hide{display:none}
+  .q{padding:8px 10px;font-size:16px}
+}
+@media (max-width:560px){
+  :root{--tile:108px}
+  body.sz-s{--tile:92px} body.sz-l{--tile:140px}
+  .top{gap:4px;padding:8px 12px 6px}
+  .brand b{font-size:16px}
+  .brand .mark{display:none}
+  .ib{width:40px;height:40px}
+  .bar{padding:10px 12px}
+  main{padding:12px 12px 40px}
+  .slots{gap:5px}
+  .slot{min-height:88px;padding:6px 2px;border-radius:11px}
+  .slot .pic{height:40px}.slot .pic img,.slot .pic svg.body{height:40px;width:40px}.slot .pic .emo{font-size:30px}
+  .slot .qq{font-size:14px}.slot .hh{display:none}.slot .lb{font-size:12.5px}.slot .tag{display:none}
+  .sentence{font-size:19px;margin:8px 2px}
+  .acts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+  .act{min-width:0;font-size:10.5px;padding:4px 2px;min-height:50px}
+  .act.speak{grid-column:1/-1;font-size:19px;min-height:54px}
+  .tile .lbl{font-size:14.5px}
+  .tile{padding:6px;border-radius:13px}
+  .ggrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .gtile{flex-direction:column;text-align:center;gap:6px;padding:10px 6px;min-height:0}
+  .gtile b{font-size:15px}.gtile small{display:none}
+}
+</style>
+
+</head>
+<body>
+<div id="app" dir="rtl" lang="ar">
+  <header class="top">
+    <div class="brand"><div class="mark" aria-hidden="true"><span><i></i><i></i><i></i></span></div>
+      <div class="txt"><b>جُمْلَتي بالصُّوَر</b><small>تواصل بروكا · لوحة تواصل بديل ومعزّز</small></div></div>
+    <button class="q yes" data-say="نعم" aria-label="نعم">✓ <span>نعم</span></button>
+    <button class="q no" data-say="لا" aria-label="لا">✕ <span>لا</span></button>
+    <button class="q sos" id="sosBtn" aria-label="الحالات الطارئة">!<span class="lbl-hide">طوارئ</span></button>
+    <button class="ib" id="favBtn" title="الجمل المفضلة" aria-label="الجمل المفضلة"></button>
+    <button class="ib" id="editBtn" title="وضع المعالج (تعديل)" aria-label="وضع المعالج"></button>
+    <button class="ib" id="setBtn" title="الإعدادات" aria-label="الإعدادات"></button>
+  </header>
+  <section class="bar" id="bar" aria-label="شريط تكوين الجملة">
+    <div class="slots" id="slots"></div>
+    <div class="sentence" id="sentence" aria-live="polite"></div>
+    <div class="acts" id="acts"></div>
+  </section>
+  <main id="view"></main>
+</div>
+<div id="modalRoot"></div>
+<div id="toast" hidden></div>
+
+<script>
+(function(){
+'use strict';
+document.documentElement.lang='ar';document.documentElement.dir='rtl';
+const $=s=>document.querySelector(s);
+const h=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>(p||'u')+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+/* ---------------- icons ---------------- */
+const IC={
+ speak:'M4 9h4l5-4v14l-5-4H4z M16 9a4 4 0 0 1 0 6 M18.5 6.5a8 8 0 0 1 0 11',
+ undo:'M9 5h11v14H9l-6-7z M12 9l5 6 M17 9l-5 6',
+ trash:'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13',
+ order:'M7 4v16 M3 8l4-4 4 4 M17 20V4 M13 16l4 4 4-4',
+ star:'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z',
+ clock:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v5l3 2',
+ home:'M3 11l9-7 9 7 M5 10v10h5v-6h4v6h5V10',
+ gear:'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9l2.1 2.1 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1',
+ pencil:'M4 20h4L19 9l-4-4L4 16z M13 7l4 4',
+ plus:'M12 5v14 M5 12h14',
+ back:'M5 12h14 M13 6l6 6-6 6',
+ x:'M6 6l12 12 M18 6L6 18',
+ mic:'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3 M5 11a7 7 0 0 0 14 0 M12 18v3',
+ play:'M8 5l11 7-11 7z',
+ left:'M15 6l-6 6 6 6', right:'M9 6l6 6-6 6',
+ img:'M4 5h16v14H4z M4 16l5-5 4 4 3-3 4 4 M15 9.5a1 1 0 1 0 0-.1',
+ down:'M12 4v12 M6 10l6 6 6-6 M4 20h16', up:'M12 16V4 M6 10l6-6 6 6 M4 20h16'
+};
+const ic=(n,cls)=>`<svg class="i ${cls||''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+
+/* body map pictogram for pain location */
+const BODY={head:[50,12],eye:[46,13],ear:[41,15],mouth:[50,19],teeth:[50,19],throat:[50,27],chest:[50,37],heart:[55,37],belly:[50,51],back:[50,44],arm:[35,40],hand:[31,63],leg:[56,82],knee:[44,77],foot:[44,95]};
+function bodySvg(p){const c=BODY[p]||[50,50];const back=p==='back';
+ return `<svg viewBox="0 0 100 100" class="body" aria-hidden="true"><g fill="currentColor" opacity=".26"><circle cx="50" cy="13" r="9"/><rect x="47" y="21" width="6" height="7"/><path d="M38 28h24l3 30H35z"/><path d="M38 29l-8 33 5 1 7-27z"/><path d="M62 29l8 33-5 1-7-27z"/><path d="M36 58h12l-1 39h-7z"/><path d="M52 58h12l-4 39h-7z"/></g><circle cx="${c[0]}" cy="${c[1]}" r="5.5" fill="var(--danger)"/><circle cx="${c[0]}" cy="${c[1]}" r="9.5" fill="none" stroke="var(--danger)" stroke-width="2" ${back?'stroke-dasharray="3 2"':''}/></svg>`}
+
+/* ---------------- storage (on this device only) ---------------- */
+const Store={db:null,mem:{},
+ async open(){try{this.db=await new Promise((res,rej)=>{const r=indexedDB.open('jumlati-broca',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+   try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}catch(e){this.db=null}},
+ async get(k){if(!this.db)return this.mem[k];try{return await new Promise((res,rej)=>{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}catch(e){return this.mem[k]}},
+ async set(k,v){this.mem[k]=v;if(!this.db)return false;try{await new Promise((res,rej)=>{const tx=this.db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)});return true}catch(e){return false}}
+};
+
+/* ---------------- vocabulary ---------------- */
+const SLOTS=[{k:'who',q:'مَن؟',hh:'الشخص'},{k:'act',q:'ماذا يفعل؟',hh:'الفعل / القصد'},{k:'obj',q:'ماذا؟',hh:'الشيء / الشخص'},{k:'where',q:'أين؟',hh:'المكان'},{k:'when',q:'متى؟',hh:'الزمان'}];
+const SLOTNAME={who:'الأشخاص والضمائر',act:'الأفعال والمقاصد',obj:'الأشياء والأدوات',where:'الأماكن',when:'الزمان',say:'عبارات جاهزة · تُنطق فورًا'};
+const GROUPS0=[
+ {id:'basic',name:'الاحتياجات الأساسية',icon:'🤲',color:'#2F6F8F'},
+ {id:'people',name:'الأشخاص والعائلة',icon:'👨‍👩‍👧',color:'#B08A1E'},
+ {id:'food',name:'الطعام والشراب',icon:'🍽️',color:'#B4572E'},
+ {id:'health',name:'الصحة والألم',icon:'🩺',color:'#A23B4A'},
+ {id:'feel',name:'المشاعر',icon:'🙂',color:'#7A5C9E'},
+ {id:'hygiene',name:'النظافة الشخصية',icon:'🧼',color:'#2E7D7A'},
+ {id:'clothes',name:'الملابس',icon:'👕',color:'#4A6FA5'},
+ {id:'home',name:'المنزل',icon:'🏠',color:'#8C6D2F'},
+ {id:'tools',name:'الأدوات',icon:'📱',color:'#5B6B7A'},
+ {id:'move',name:'التنقل',icon:'🚶',color:'#3B7D4F'},
+ {id:'social',name:'التواصل الاجتماعي',icon:'💬',color:'#9A4F7D'},
+ {id:'daily',name:'الأنشطة اليومية',icon:'📖',color:'#6B7F2A'},
+ {id:'places',name:'الأماكن',icon:'📍',color:'#2F6FB0'},
+ {id:'time',name:'الزمان',icon:'🕒',color:'#6E55A0'},
+ {id:'yesno',name:'الرفض والموافقة',icon:'✅',color:'#3F6E5A'},
+ {id:'emerg',name:'الحالات الطارئة',icon:'🆘',color:'#C8372D'}
+];
+const D=[];const add=o=>{o.cats=o.cats||[];D.push(o)};
+const cs=s=>s.split(' ');
+// pronouns: pr = 0 أنا,1 أنتَ,2 أنتِ,3 هو,4 هي,5 نحن,6 هم
+[['p0','أنا','🙋',0],['p1','أنتَ','🫵',1],['p2','أنتِ','🫵',2],['p3','هو','👨',3],['p4','هي','👩',4],['p5','نحن','👥',5],['p6','هم','👨‍👩‍👦',6]]
+ .forEach(([id,t,e,pr])=>add({id,slot:'who',cats:['people'],t,e,pr}));
+const RELS=[['الأم','أمي','f','👩‍🦳'],['الأب','أبي','m','👨‍🦳'],['الزوج','زوجي','m','👨'],['الزوجة','زوجتي','f','👩'],['الابن','ابني','m','🧔'],['الابنة','ابنتي','f','👱‍♀️'],
+ ['الأخ','أخي','m','🧑'],['الأخت','أختي','f','👩‍🦱'],['الحفيد','حفيدي','m','👦'],['الحفيدة','حفيدتي','f','👧'],['الطبيب','الطبيب','m','👨‍⚕️'],['الطبيبة','الطبيبة','f','👩‍⚕️'],
+ ['الأخصائي الأرطوفوني','الأخصائي الأرطوفوني','m','🧑‍⚕️'],['الأخصائية الأرطوفونية','الأخصائية الأرطوفونية','f','👩‍⚕️'],['الممرض','الممرض','m','🧑‍⚕️'],['الممرضة','الممرضة','f','👩‍⚕️'],
+ ['الصديق','صديقي','m','🧑‍🤝‍🧑'],['الصديقة','صديقتي','f','👭'],['الجار','جاري','m','🏘️'],['الجارة','جارتي','f','🏘️']];
+const relInfo=r=>RELS.find(x=>x[0]===r);
+['الأم','الأب','الزوج','الزوجة','الابن','الابنة','الأخ','الأخت','الحفيد','الحفيدة','الطبيب','الأخصائي الأرطوفوني','الممرض','الصديق','الجار'].forEach((r,i)=>{
+ const R=relInfo(r);add({id:'f'+i,slot:'who',person:true,cats:['people'],rel:r,t:R[1],name:'',g:R[2],e:R[3],pin:['الزوجة','الابن','الابنة','الطبيب'].includes(r)})});
+
+// verbs (present, conjugated from the أنا form): w = أنا form, stem = form without prefix
+const V=(id,cats,e,w,stem,o={})=>add(Object.assign({id,slot:'act',cats:cs(cats),e,w,stem,t:(o.neg?o.neg+' ':'')+w+(o.rest?' '+o.rest:'')+(o.dt||'')},o));
+// imperatives: m / f / plural, the subject becomes the person addressed
+const I=(id,cats,e,m,f,p,o={})=>add(Object.assign({id,slot:'act',cats:cs(cats),e,imp:true,m,f,p,t:m+(o.rest?' '+o.rest:'')+(o.dt||'')},o));
+// explicit forms
+const F=(id,cats,e,forms,o={})=>add(Object.assign({id,slot:'act',cats:cs(cats),e,forms,t:forms[0]+(o.rest?' '+o.rest:'')+(o.dt||'')},o));
+const N=(id,cats,e,t,o={})=>add(Object.assign({id,slot:'obj',cats:cs(cats),e,t,g:'m'},o));
+const S=(id,cats,e,t,o={})=>add(Object.assign({id,slot:'say',cats:cs(cats),e,t},o));
+
+// basic needs
+V('v_want','basic','🤲','أريد','ريد');
+V('v_nowant','basic yesno','🙅','أريد','ريد',{neg:'لا'});
+V('v_need','basic','❗','أحتاج','حتاج');
+I('i_give','basic','🫴','أعطني','أعطيني','أعطوني');
+I('i_bring','basic','📦','أحضر لي','أحضري لي','أحضروا لي');
+I('i_help','basic emerg','🤝','ساعدني','ساعديني','ساعدوني');
+I('i_wait','basic','✋','انتظر','انتظري','انتظروا');
+I('i_come','basic','👋','تعال','تعالي','تعالوا');
+I('i_call','basic emerg social','📞','اتصل','اتصلي','اتصلوا',{op:'بـ',dt:' بـ'});
+I('i_take','basic move','🧑‍🦯','خذني','خذيني','خذوني',{to:'إلى',op:'إلى',dt:' إلى'});
+I('i_open','basic home','🔓','افتح','افتحي','افتحوا');
+I('i_close','basic home','🔒','أغلق','أغلقي','أغلقوا');
+I('i_on','basic home','🔛','شغّل','شغّلي','شغّلوا');
+I('i_off','basic home','⏹️','أوقف','أوقفي','أوقفوا');
+// food
+V('v_eat','food','🍴','آكل','أكل');
+V('v_drink','food','🥤','أشرب','شرب');
+V('v_cook','food daily','🍳','أطبخ','طبخ');
+V('v_bottle','food','🍾','أفتح','فتح',{rest:'القارورة'});
+V('v_chew','food','😋','أمضغ','مضغ');
+V('v_swallow','food health','👅','أبلع','بلع');
+V('v_more','food basic','➕','أريد','ريد',{rest:'المزيد'});
+F('v_done','food basic','✅',['انتهيتُ','انتهيتَ','انتهيتِ','انتهى','انتهت','انتهينا','انتهوا']);
+[['n_water','💧','الماء'],['n_coffee','☕','القهوة','f'],['n_tea','🍵','الشاي'],['n_milk','🥛','الحليب'],['n_juice','🧃','العصير'],['n_bread','🍞','الخبز'],['n_soup','🍲','الحساء'],
+ ['n_fruit','🍎','الفاكهة','f'],['n_veg','🥦','الخضر','f'],['n_meat','🍖','اللحم'],['n_meal','🥘','الوجبة','f']].forEach(([id,e,t,g])=>N(id,'food',e,t,{g:g||'m'}));
+N('n_med','food health','💊','الدواء');
+// tools
+[['n_cup','🫗','الكأس','f'],['n_spoon','🥄','الملعقة','f'],['n_fork','🍴','الشوكة','f'],['n_plate','🍽️','الصحن']].forEach(([id,e,t,g])=>N(id,'tools food',e,t,{g:g||'m'}));
+[['n_phone','📱','الهاتف'],['n_remote','🎛️','جهاز التحكم'],['n_tv','📺','التلفاز']].forEach(([id,e,t])=>N(id,'tools home',e,t));
+N('n_glasses','tools health','👓','النظارات',{g:'f'});
+[['n_key','🔑','المفتاح'],['n_wallet','👛','المحفظة','f'],['n_pen','🖊️','القلم'],['n_book','📖','الكتاب'],['n_charger','🔌','الشاحن']].forEach(([id,e,t,g])=>N(id,'tools',e,t,{g:g||'m'}));
+// clothes
+[['n_shirt','👔','القميص'],['n_pants','👖','السروال'],['n_shoes','👞','الحذاء'],['n_socks','🧦','الجوارب','f'],['n_coat','🧥','المعطف'],['n_hat','🧢','القبعة','f'],['n_pj','👕','ملابس النوم','f']]
+ .forEach(([id,e,t,g])=>N(id,'clothes',e,t,{g:g||'m'}));
+// hygiene
+V('v_wash','hygiene','🫧','أغسل','غسل');
+V('v_shower','hygiene','🚿','أستحم','ستحم');
+V('v_wear','hygiene clothes','👕','أرتدي','رتدي');
+V('v_takeoff','hygiene clothes','🧥','أنزع','نزع');
+V('v_teeth','hygiene','🪥','أنظّف','نظّف',{rest:'الأسنان'});
+V('v_shave','hygiene','🪒','أحلق','حلق');
+V('v_toilet','hygiene basic','🚽','أستعمل','ستعمل',{rest:'المرحاض'});
+[['n_soap','🧼','الصابون'],['n_towel','🧺','المنشفة','f'],['n_brush','🪥','فرشاة الأسنان','f'],['n_paste','🧴','معجون الأسنان'],['n_comb','🪮','المشط'],['n_tissue','🧻','المناديل','f'],['n_razor','🪒','أدوات الحلاقة','f']]
+ .forEach(([id,e,t,g])=>N(id,'hygiene',e,t,{g:g||'m'}));
+// movement
+V('v_go','move','🚶','أذهب','ذهب',{to:'إلى',op:'إلى',dt:' إلى'});
+V('v_sit','move','🪑','أجلس','جلس');
+V('v_stand','move','🧍','أقف','قف');
+V('v_sleep','move daily','😴','أنام','نام');
+V('v_wake','move daily','⏰','أستيقظ','ستيقظ');
+V('v_walk','move','🚶‍♂️','أمشي','مشي');
+V('v_out','move','🚪','أخرج','خرج',{to:'إلى'});
+V('v_back','move','↩️','أعود','عود',{to:'إلى',op:'إلى',dt:' إلى'});
+V('v_car','move','🚗','أركب','ركب',{rest:'السيارة'});
+// social
+V('v_talk','social','🗣️','أتكلم','تكلم',{op:'مع',dt:' مع'});
+F('v_see','social','👁️',['أرى','ترى','ترين','يرى','ترى','نرى','يرون']);
+V('v_hear','social','👂','أسمع','سمع');
+V('v_visit','social move','🏡','أزور','زور',{to:''});
+V('v_thank','social','🙏','أشكر','شكر');
+V('v_sorry','social','😔','أعتذر','عتذر',{op:'من',dt:' من'});
+V('v_agree','social yesno','👍','أوافق','وافق');
+V('v_refuse','social yesno','👎','أرفض','رفض');
+V('v_love','social feel','❤️','أحب','حب');
+V('v_nolove','social feel','💔','أحب','حب',{neg:'لا'});
+F('v_miss','social feel','🫂',['اشتقتُ','اشتقتَ','اشتقتِ','اشتاق','اشتاقت','اشتقنا','اشتاقوا'],{op:'إلى',dt:' إلى'});
+// health
+V('v_pain','health','🤕','أشعر','شعر',{rest:'بالألم'});
+F('v_hurts','health','📍',['يؤلمني','يؤلمك','يؤلمكِ','يؤلمه','يؤلمها','يؤلمنا','يؤلمهم'],{fforms:['تؤلمني','تؤلمك','تؤلمكِ','تؤلمه','تؤلمها','تؤلمنا','تؤلمهم']});
+V('v_tired','health feel','🥱','أشعر','شعر',{rest:'بالتعب'});
+V('v_dizzy','health','😵‍💫','أشعر','شعر',{rest:'بالدوار'});
+V('v_breath','health emerg','😮‍💨','أستطيع','ستطيع',{neg:'لا',rest:'التنفس جيدًا'});
+V('v_needdoc','health','👨‍⚕️','أحتاج','حتاج',{rest:'الطبيب'});
+V('v_needmed','health','💊','أحتاج','حتاج',{rest:'الدواء'});
+V('v_lie','health','🛌','أريد','ريد',{rest:'الاستلقاء'});
+V('v_cold','health','🥶','أشعر','شعر',{rest:'بالبرد'});
+V('v_hot','health','🥵','أشعر','شعر',{rest:'بالحرارة'});
+V('v_nausea','health','🤢','أشعر','شعر',{rest:'بالغثيان'});
+N('n_bp','health','🩺','جهاز قياس الضغط');
+N('n_wheel','health move','🦽','الكرسي المتحرك');
+N('n_cane','health move','🦯','العصا',{g:'f'});
+N('n_band','health','🩹','الضمادة',{g:'f'});
+[['b_head','head','الرأس','m'],['b_eye','eye','العين','f'],['b_ear','ear','الأذن','f'],['b_mouth','mouth','الفم','m'],['b_teeth','teeth','الأسنان','f'],['b_throat','throat','الحلق','m'],
+ ['b_chest','chest','الصدر','m'],['b_heart','heart','القلب','m'],['b_belly','belly','البطن','m'],['b_back','back','الظهر','m'],['b_arm','arm','الذراع','f'],['b_hand','hand','اليد','f'],
+ ['b_leg','leg','الرِّجل','f'],['b_knee','knee','الركبة','f'],['b_foot','foot','القدم','f']].forEach(([id,b,t,g])=>N(id,'health',null,t,{body:b,g}));
+// feelings
+[['v_happy','😊','بالسعادة'],['v_sad','😢','بالحزن'],['v_worry','😟','بالقلق'],['v_fear','😨','بالخوف'],['v_angry','😠','بالغضب'],['v_frus','😤','بالإحباط'],['v_bored','😑','بالملل'],['v_alone','🫥','بالوحدة'],['v_calm','😌','بالراحة']]
+ .forEach(([id,e,r])=>V(id,'feel','​'+e,'أشعر','شعر',{rest:r}));
+S('s_fine','feel','🙂','أنا بخير');
+// home
+[['n_door','🚪','الباب'],['n_window','🪟','النافذة','f'],['n_light','💡','الضوء'],['n_fan','🌀','المروحة','f'],['n_ac','❄️','المكيّف'],['n_heat','🔥','التدفئة','f'],['n_bed','🛏️','السرير'],['n_chair','🪑','الكرسي'],['n_sofa','🛋️','الأريكة','f'],['n_blanket','🟫','الغطاء']]
+ .forEach(([id,e,t,g])=>N(id,'home',e,t,{g:g||'m'}));
+// daily activities
+V('v_watch','daily','📺','أشاهد','شاهد');
+F('v_read','daily','📖',['أقرأ','تقرأ','تقرئين','يقرأ','تقرأ','نقرأ','يقرؤون']);
+V('v_write','daily','✍️','أكتب','كتب');
+V('v_pray','daily','🕋','أصلّي','صلّي');
+V('v_listen','daily social','🎧','أستمع','ستمع',{op:'إلى',dt:' إلى'});
+V('v_exer','daily','🏋️','أتمرّن','تمرّن');
+V('v_rest','daily health','🛋️','أرتاح','رتاح');
+V('v_stroll','daily move','🌳','أتنزّه','تنزّه');
+[['n_radio','📻','الراديو'],['n_quran','📗','القرآن الكريم'],['n_news','📰','الأخبار','f'],['n_paper','🗞️','الجريدة','f'],['n_music','🎵','الموسيقى','f']].forEach(([id,e,t,g])=>N(id,'daily',e,t,{g:g||'m'}));
+// places
+[['l_home','🏠','المنزل'],['l_bed','🛏️','غرفة النوم'],['l_salon','🛋️','الصالون'],['l_kitchen','🍳','المطبخ'],['l_bath','🛁','الحمام'],['l_wc','🚽','المرحاض'],['l_garden','🌳','الحديقة'],['l_car','🚗','السيارة'],
+ ['l_hosp','🏥','المستشفى'],['l_clinic','🏢','العيادة'],['l_pharm','⚕️','الصيدلية'],['l_shop','🏪','المتجر'],['l_mosque','🕌','المسجد'],['l_family','🏡','منزل العائلة'],['l_out','🌤️','خارج المنزل','']]
+ .forEach(([id,e,t,prep])=>add({id,slot:'where',cats:id==='l_bed'||id==='l_salon'||id==='l_kitchen'||id==='l_bath'||id==='l_wc'?['places','home']:['places'],e,t,prep}));
+// time
+[['t_now','⚡','الآن'],['t_soon','⏳','بعد قليل'],['t_today','📅','اليوم'],['t_tom','⏭️','غدًا'],['t_yest','⏮️','أمس'],['t_morn','🌅','صباحًا'],['t_noon','☀️','ظهرًا'],['t_eve','🌇','مساءً'],['t_night','🌙','ليلًا'],
+ ['t_bmeal','⏳🍽️','قبل الأكل'],['t_ameal','✅🍽️','بعد الأكل'],['t_bsleep','⏳🛏️','قبل النوم'],['t_awake','☀️🛏️','بعد الاستيقاظ'],['t_apray','🕌','بعد الصلاة']]
+ .forEach(([id,e,t])=>add({id,slot:'when',cats:['time'],e,t}));
+// ready phrases (yes/no, repair strategies for aphasia, emergencies)
+S('s_yes','yesno','✅','نعم');S('s_no','yesno','❌','لا');S('s_idk','yesno','🤷','لا أعرف');S('s_maybe','yesno','🤔','ربما');
+S('s_notnow','yesno','⏸️','ليس الآن');S('s_yesplz','yesno','🙂','نعم، من فضلك');S('s_nothx','yesno','🙅‍♂️','لا، شكرًا');
+S('s_salam','social','👋','السلام عليكم');S('s_thx','social','🙏','شكرًا');S('s_notund','social','❓','لم أفهم');S('s_repeat','social','🔁','أعد من فضلك');
+S('s_slow','social','🐢','تكلّم ببطء من فضلك');S('s_think','social','💭','انتظر، أنا أفكّر');S('s_word','social','💬','أعرف الكلمة لكن لا أستطيع قولها');
+S('s_ask','social yesno','☑️','اسألني بنعم أو لا');S('s_point','social','👆','سأشير إلى الصورة');
+S('e_help','emerg','🆘','النجدة! أحتاج مساعدة فورًا',{sos:true});S('e_amb','emerg','🚑','اتصلوا بالإسعاف',{sos:true});
+S('e_fell','emerg','⚠️','سقطتُ على الأرض',{sos:true});S('e_chest','emerg','🫀','ألم شديد في صدري',{sos:true});
+S('e_breath','emerg','🫁','لا أستطيع التنفس',{sos:true});S('e_faint','emerg','😵','أشعر أنني سأفقد الوعي',{sos:true});
+S('e_family','emerg','📞','اتصلوا بعائلتي',{sos:true});S('e_sugar','emerg','🩸','أشعر بهبوط في السكر',{sos:true});
+
+/* ---------------- real photographs (img/ folder) ---------------- */
+const PICS={
+ l_home:'home',l_bed:'bedroom',l_kitchen:'kitchen',l_bath:'bathroom',l_hosp:'hospital',l_clinic:'clinic',l_garden:'garden',l_car:'car',v_car:'car',l_wc:'toilet',
+ t_now:'now',t_today:'today',t_morn:'morning',t_noon:'noon',t_eve:'evening',t_night:'night',t_soon:'wait',i_wait:'wait',t_tom:'tomorrow',
+ b_belly:'pain-side',b_chest:'pain-chest',b_heart:'pain-chest',e_chest:'pain-chest',v_sorry:'sorry',b_head:'headache',v_pain:'headache',b_knee:'pain-knee',b_leg:'pain-knee',
+ b_hand:'pain-hand',s_idk:'dont-know',b_arm:'pain-arm',v_sad:'sad',v_dizzy:'dizzy',e_faint:'dizzy',v_nausea:'nausea',v_breath:'breath',e_breath:'breath',v_miss:'miss',v_hot:'hot',
+ v_cold:'cold',v_eat:'hungry',v_drink:'drink',b_teeth:'toothache',v_sleep:'sleep',v_agree:'thumbs-up',s_fine:'thumbs-up',v_happy:'thumbs-up',s_yes:'thumbs-up',
+ v_tired:'tired',v_bored:'tired',v_fear:'fear',v_worry:'worry',v_angry:'angry',s_notund:'confused',v_frus:'frustrated',s_word:'frustrated',v_alone:'lonely',v_calm:'calm',v_rest:'calm',
+ n_water:'water',n_cup:'water',n_meal:'meal',n_med:'medicine',v_needmed:'medicine',n_phone:'phone',i_call:'phone',n_glasses:'glasses',n_shirt:'clothes',n_pj:'clothes',v_wear:'clothes',
+ n_tv:'tv',v_watch:'tv',n_book:'book',v_read:'book',n_towel:'towel',n_blanket:'towel',n_key:'keys',n_door:'door',i_open:'door',n_window:'window',n_light:'lamp',i_on:'lamp',n_fan:'fan',
+ n_chair:'chair',v_sit:'chair',v_toilet:'toilet'
+};
+D.forEach(d=>{if(PICS[d.id])d.img='img/'+PICS[d.id]+'.jpg'});
+const GPICS={basic:'water',food:'meal',health:'headache',feel:'thumbs-up',hygiene:'towel',clothes:'clothes',home:'door',tools:'phone',move:'car',daily:'book',places:'home',time:'now',emerg:'pain-chest'};
+GROUPS0.forEach(g=>{if(GPICS[g.id])g.img='img/'+GPICS[g.id]+'.jpg'});
+
+/* ---------------- state ---------------- */
+let USER={items:{},groups:{},usage:{}}, SET={showText:true,size:'m',speakTap:true,rate:0.9,voice:'',pin:'',theme:''}, FAVS=[], HIST=[];
+let ITEMS=[], ITEM={}, GROUPS=[], GROUP={};
+let ST={who:null,act:null,obj:null,where:null,when:null}, STACK=[], ORDER=['who','act','obj','where','when'];
+let VIEW={t:'home'}, PREV={t:'home'}, editMode=false, reorder=false;
+
+function rebuild(){
+ ITEMS=D.map(d=>Object.assign({},d,USER.items[d.id]||{}));
+ Object.values(USER.items).forEach(r=>{if(r.custom)ITEMS.push(Object.assign({cats:[]},r))});
+ ITEM={};ITEMS.forEach(i=>ITEM[i.id]=i);
+ GROUPS=GROUPS0.map(g=>Object.assign({},g,USER.groups[g.id]||{}));
+ Object.values(USER.groups).forEach(g=>{if(g.custom)GROUPS.push(g)});
+ GROUP={};GROUPS.forEach(g=>GROUP[g.id]=g);
+ for(const k in ST) if(ST[k]&&!ITEM[ST[k]]) ST[k]=null;
+}
+let saveT=null;
+function save(keys){ (keys||['user','set','favs','hist']).forEach(k=>{
+  const v={user:USER,set:SET,favs:FAVS,hist:HIST}[k]; Store.set(k,JSON.parse(JSON.stringify(v))); }) }
+function saveSoon(k){clearTimeout(saveT);saveT=setTimeout(()=>save(k),600)}
+
+/* ---------------- grammar ---------------- */
+const PRE=['أ','ت','ت','ي','ت','ن','ي'];
+function subjPr(it){ if(!it) return 0; if(it.person) return it.g==='f'?4:3; return it.pr!=null?it.pr:0 }
+function verbForm(v,pr,obj){
+ if(v.fixed) return v.t;
+ if(v.imp){const f=(pr===2||pr===4)?v.f:(pr===6?v.p:v.m);return f+(v.rest?' '+v.rest:'')}
+ let forms=v.forms; if(v.fforms&&obj&&obj.g==='f') forms=v.fforms;
+ let w;
+ if(forms) w=forms[pr];
+ else if(pr===0) w=v.w;
+ else{let st=v.stem,suf='';if(pr===2||pr===6){if(/[يى]$/.test(st))st=st.slice(0,-1);suf=pr===2?'ين':'ون'}w=PRE[pr]+st+suf}
+ return (v.neg?v.neg+' ':'')+w+(v.rest?' '+v.rest:'');
+}
+const wordOf=it=>it.person?(it.name||it.t):(it.slot==='act'&&!it.fixed&&!it.custom?it.t.replace(/ (بـ|إلى|مع|من)$/,''):it.t);
+function compose(state,order){
+ state=state||ST;order=order||ORDER;
+ const S={};for(const k in state) S[k]=state[k]?ITEM[state[k]]:null;
+ const v=S.act, pr=subjPr(S.who), out={};
+ if(S.who){ if(v&&v.imp) out.who=S.who.person?'يا '+(S.who.name||S.who.t)+'،':''; else out.who=S.who.person?(S.who.name||S.who.t):S.who.t }
+ if(v) out.act=verbForm(v,pr,S.obj);
+ if(S.obj){let t=S.obj.person?(S.obj.name||S.obj.t):S.obj.t;const op=v&&v.op;if(op==='بـ')t='ب'+t;else if(op)t=op+' '+t;out.obj=t}
+ if(S.where){const own=S.where.prep==null?'في':S.where.prep;const pp=(own!==''&&v&&v.to!=null)?v.to:own;out.where=pp?pp+' '+S.where.t:S.where.t}
+ if(S.when) out.when=S.when.t;
+ const text=order.map(k=>out[k]).filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+ const segs=order.filter(k=>out[k]||(S[k]&&S[k].audio)).map(k=>({text:out[k],audio:S[k]&&S[k].audio}));
+ return {S,text,segs};
+}
+
+/* ---------------- speech ---------------- */
+let VOICES=[], curAudio=null;
+function loadVoices(){try{VOICES=speechSynthesis.getVoices().filter(v=>/^ar/i.test(v.lang))}catch(e){VOICES=[]}}
+if('speechSynthesis' in window){loadVoices();try{speechSynthesis.onvoiceschanged=()=>{loadVoices();if(VIEW.t==='settings')render()}}catch(e){}}
+function stopAll(){try{speechSynthesis.cancel()}catch(e){} if(curAudio){try{curAudio.pause()}catch(e){} curAudio=null}}
+function tts(text,done){
+ if(!text){done&&done();return}
+ if(!('speechSynthesis' in window)){toast('هذا المتصفح لا يدعم النطق الآلي');done&&done();return}
+ const u=new SpeechSynthesisUtterance(text);u.lang='ar-SA';
+ const v=VOICES.find(x=>x.voiceURI===SET.voice)||VOICES.find(x=>/SA|DZ|EG/i.test(x.lang))||VOICES[0];
+ if(v){u.voice=v;u.lang=v.lang}
+ u.rate=SET.rate||0.9;u.pitch=1;
+ let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
+ u.onend=end;u.onerror=end;
+ speechSynthesis.speak(u);
+}
+function playSegs(segs,onDone){
+ stopAll();let i=0;
+ const next=()=>{ if(i>=segs.length){onDone&&onDone();return}
+  const s=segs[i++];
+  if(s.audio){const a=new Audio(s.audio);curAudio=a;a.onended=next;a.onerror=()=>tts(s.text,next);a.play().catch(()=>tts(s.text,next))}
+  else tts(s.text,next) };
+ next();
+}
+function speakItem(it){
+ if(it.audio) playSegs([{audio:it.audio,text:wordOf(it)}]);
+ else {stopAll();tts(it.slot==='say'?it.t:wordOf(it))}
+}
+
+/* ---------------- UI helpers ---------------- */
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2400)}
+const pic=it=>it.img?`<img src="${it.img}" alt="">`:(it.body?bodySvg(it.body):`<span class="emo">${h((it.e||'⬚').replace('​',''))}</span>`);
+const label=it=>it.person?(it.t+(it.name?' – '+it.name:'')):it.t;
+const slotOf=it=>it.slot;
+const vis=it=>editMode||!it.hidden;
+
+/* ---------------- sentence strip ---------------- */
+function renderBar(){
+ const firstEmpty=ORDER.find(k=>!ST[k]);
+ $('#slots').innerHTML=ORDER.map((k,idx)=>{
+  const s=SLOTS.find(x=>x.k===k), it=ST[k]&&ITEM[ST[k]];
+  const mv=reorder?`<div class="mv">${idx>0?`<button data-mv="${idx}" data-d="-1" aria-label="تحريك إلى اليمين">${ic('right')}</button>`:'<span></span>'}${idx<ORDER.length-1?`<button data-mv="${idx}" data-d="1" aria-label="تحريك إلى اليسار">${ic('left')}</button>`:'<span></span>'}</div>`:'';
+  if(it) return `<button class="slot filled k-${k}" data-slot="${k}" aria-label="${h(s.q)} ${h(label(it))}"><span class="tag">${h(s.q)}</span><div class="pic">${pic(it)}</div><div class="lb">${h(label(it))}</div>${mv}</button>`;
+  return `<button class="slot k-${k} ${k===firstEmpty&&!reorder?'next':''}" data-slot="${k}"><span class="qq">${h(s.q)}</span><span class="hh">${h(s.hh)}</span>${mv}</button>`;
+ }).join('');
+ const c=compose();
+ const se=$('#sentence');
+ se.textContent=c.text||'اضغط على الصور لتكوين جملة: مَن ← ماذا يفعل ← ماذا ← أين ← متى';
+ se.classList.toggle('empty',!c.text);
+}
+function renderActs(){
+ $('#acts').innerHTML=[
+  `<button class="act speak" data-a="speak">${ic('speak')}<span>انطق الجملة</span></button>`,
+  `<button class="act" data-a="undo">${ic('undo')}<span>حذف آخر صورة</span></button>`,
+  `<button class="act" data-a="clear">${ic('trash')}<span>مسح الجملة</span></button>`,
+  `<button class="act ${reorder?'on':''}" data-a="order" aria-pressed="${reorder}">${ic('order')}<span>إعادة الترتيب</span></button>`,
+  `<button class="act" data-a="fav">${ic('star')}<span>حفظ في المفضلة</span></button>`,
+  `<button class="act" data-a="hist">${ic('clock')}<span>جمل سابقة</span></button>`,
+  `<button class="act" data-a="home">${ic('home')}<span>الرئيسية</span></button>`
+ ].join('');
+}
+function renderHeader(){
+ $('#favBtn').innerHTML=ic('star');$('#setBtn').innerHTML=ic('gear');
+ $('#editBtn').innerHTML=ic('pencil');$('#editBtn').classList.toggle('on',editMode);
+ $('#editBtn').setAttribute('aria-pressed',editMode);
+ document.body.classList.toggle('notext',!SET.showText);
+ document.body.classList.remove('sz-s','sz-m','sz-l');document.body.classList.add('sz-'+SET.size);
+ if(SET.theme) document.documentElement.setAttribute('data-theme',SET.theme); else document.documentElement.removeAttribute('data-theme');
+}
+
+/* ---------------- views ---------------- */
+function tileHTML(it){
+ const k=it.slot, cls=['tile','k-'+k];
+ if(k==='say')cls.push('say'); if(it.sos)cls.push('sos'); if(it.hidden)cls.push('hid');
+ return `<button class="${cls.join(' ')}" data-it="${h(it.id)}" aria-label="${h(label(it))}">${it.hidden?'<span class="badge">مخفي</span>':''}${it.audio?`<span class="rec" title="تسجيل صوتي خاص">${ic('mic')}</span>`:''}<div class="pic">${pic(it)}</div><div class="lbl">${h(label(it))}</div></button>`;
+}
+const addTile=(data,txt)=>editMode?`<button class="tile add" ${data}>${ic('plus')}<div class="lbl">${h(txt)}</div></button>`:'';
+function persons(){return ITEMS.filter(i=>i.person&&vis(i))}
+function topPersons(){
+ return ITEMS.filter(i=>i.person&&!i.hidden).sort((a,b)=>((b.pin?1e6:0)+(USER.usage[b.id]||0))-((a.pin?1e6:0)+(USER.usage[a.id]||0))).filter(i=>i.pin||(USER.usage[i.id]||0)>0).slice(0,8);
+}
+function vHome(){
+ const tp=topPersons();
+ let o=`<div class="crumb"><h2>الصفحة الرئيسية</h2>${editMode?`<span class="hint" style="margin:0">وضع المعالج مفعّل: اضغط على أي صورة أو مجموعة لتعديلها.</span>`:''}</div>`;
+ if(tp.length) o+=`<h3 class="sec k-who"><i></i>الأشخاص الأقرب</h3><div class="grid">${tp.map(tileHTML).join('')}</div>`;
+ o+=`<h3 class="sec" style="--c:var(--accent)"><i></i>المجموعات</h3><div class="ggrid">`+GROUPS.filter(g=>editMode||!g.hidden).map(g=>{
+   const n=ITEMS.filter(i=>i.cats.includes(g.id)&&!i.hidden).length;
+   return `<button class="gtile ${g.hidden?'hid':''}" data-g="${h(g.id)}" style="--g:${h(g.color)}"><span class="gi">${g.img?`<img src="${h(g.img)}" alt="">`:h(g.icon)}</span><span><b>${h(g.name)}</b><small>${n} صورة</small></span></button>`}).join('')
+  +(editMode?`<button class="gtile" data-addgroup style="--g:var(--accent);border-style:dashed"><span class="gi">${ic('plus')}</span><span><b>مجموعة جديدة</b><small>إضافة وتخصيص</small></span></button>`:'')+`</div>`;
+ return o;
+}
+function vGroup(gid){
+ const g=GROUP[gid]; if(!g) return vHome();
+ let o=`<div class="crumb"><button class="btn ghost" data-a="home">${ic('back')}<span>رجوع</span></button><span class="gi" style="--g:${h(g.color)}">${h(g.icon)}</span><h2>${h(g.name)}</h2>${editMode?`<button class="btn" data-editgroup="${h(g.id)}">${ic('pencil')}<span>تعديل المجموعة</span></button>`:''}</div>`;
+ const its=ITEMS.filter(i=>i.cats.includes(gid)&&vis(i));
+ if(gid==='people'){
+  o+=`<h3 class="sec k-who"><i></i>الضمائر</h3><div class="grid">${its.filter(i=>i.slot==='who'&&!i.person).map(tileHTML).join('')}</div>`;
+  o+=`<h3 class="sec k-who"><i></i>العائلة والأشخاص المحيطون</h3><div class="grid">${its.filter(i=>i.person).map(tileHTML).join('')}${addTile('data-addperson','إضافة شخص')}</div>`;
+  const rest=its.filter(i=>i.slot!=='who');
+  if(rest.length) o+=`<div class="grid">${rest.map(tileHTML).join('')}</div>`;
+  return o;
+ }
+ const order=gid==='emerg'?['say','act','who','obj','where','when']:['act','obj','who','where','when','say'];
+ let any=false;
+ order.forEach(k=>{const l=its.filter(i=>i.slot===k);if(!l.length)return;any=true;
+  o+=`<h3 class="sec k-${k}"><i></i>${h(SLOTNAME[k])}</h3><div class="grid">${l.map(tileHTML).join('')}</div>`});
+ if(!any&&!editMode) o+=`<div class="empty-st">لا توجد صور في هذه المجموعة بعد. فعّل وضع المعالج (زر القلم) لإضافة صور.</div>`;
+ if(editMode) o+=`<h3 class="sec" style="--c:var(--accent)"><i></i>إضافة</h3><div class="grid">${addTile(`data-additem="${h(gid)}"`,'إضافة صورة جديدة')}</div>`;
+ return o;
+}
+function vSlot(k){
+ const s=SLOTS.find(x=>x.k===k);
+ let o=`<div class="crumb"><button class="btn ghost" data-a="back">${ic('back')}<span>رجوع</span></button><h2>اختر: ${h(s.q)} <span style="color:var(--ink2);font-size:16px;font-weight:600">(${h(s.hh)})</span></h2></div>`;
+ if(k==='who'||k==='obj'){
+  const ps=persons().filter(i=>!i.hidden||editMode);
+  if(k==='who') o+=`<h3 class="sec k-who"><i></i>الضمائر</h3><div class="grid">${ITEMS.filter(i=>i.slot==='who'&&!i.person&&vis(i)).map(tileHTML).join('')}</div>`;
+  o+=`<h3 class="sec k-who"><i></i>العائلة والأشخاص</h3><div class="grid">${ps.map(tileHTML).join('')}</div>`;
+  if(k==='who') return o;
+ }
+ GROUPS.filter(g=>!g.hidden).forEach(g=>{
+  const l=ITEMS.filter(i=>i.slot===k&&i.cats.includes(g.id)&&vis(i)&&!(k==='obj'&&i.person)&&!(g.id!==firstCat(i,k)));
+  if(!l.length)return;
+  o+=`<h3 class="sec" style="--c:${h(g.color)}"><i></i>${h(g.icon)} ${h(g.name)}</h3><div class="grid">${l.map(tileHTML).join('')}</div>`});
+ return o;
+}
+function firstCat(it){const vg=GROUPS.filter(g=>!g.hidden).map(g=>g.id);return it.cats.find(c=>vg.includes(c))}
+function miniHTML(state,order){
+ return order.filter(k=>state[k]&&ITEM[state[k]]).map(k=>{const it=ITEM[state[k]];return `<span class="k-${k}" title="${h(label(it))}">${pic(it)}</span>`}).join('');
+}
+function vList(kind){
+ const L=kind==='favs'?FAVS:HIST;
+ let o=`<div class="crumb"><button class="btn ghost" data-a="home">${ic('back')}<span>رجوع</span></button><h2>${kind==='favs'?'الجمل المفضلة':'الجمل السابقة'}</h2>${kind==='hist'&&HIST.length?`<button class="btn" data-clearhist>${ic('trash')}<span>مسح السجل</span></button>`:''}</div>`;
+ if(!L.length) return o+`<div class="empty-st">${kind==='favs'?'لا توجد جمل محفوظة بعد. كوّن جملة ثم اضغط «حفظ في المفضلة» لتجدها هنا جاهزة للنطق بضغطة واحدة.':'لم تُنطق أي جملة بعد. كل جملة تنطقها تُحفظ هنا تلقائيًا لإعادة استعمالها.'}</div>`;
+ o+=`<div class="slist">`+L.map((f,i)=>{
+  const txt=f.say?(ITEM[f.say]?ITEM[f.say].t:''):compose(f.st,f.order).text;
+  if(!txt) return '';
+  const mini=f.say?(ITEM[f.say]?`<span class="k-say">${pic(ITEM[f.say])}</span>`:''):miniHTML(f.st,f.order);
+  return `<div class="scard"><div class="mini">${mini}</div><div class="st">${h(txt)}</div><div class="ops">
+   <button class="btn pri" data-lspeak="${i}" data-kind="${kind}" aria-label="انطق">${ic('speak')}</button>
+   ${f.say?'':`<button class="btn" data-luse="${i}" data-kind="${kind}">${ic('up')}<span>استعمال</span></button>`}
+   ${kind==='favs'?`<button class="btn ghost" data-ldel="${i}" aria-label="حذف من المفضلة">${ic('trash')}</button>`:`<button class="btn ghost" data-lfav="${i}" aria-label="إضافة إلى المفضلة">${ic('star')}</button>`}
+  </div></div>`}).join('')+`</div>`;
+ return o;
+}
+function sw(key,on){return `<button class="sw ${on?'on':''}" data-sw="${key}" role="switch" aria-checked="${on}"></button>`}
+function seg(key,opts,val){return `<span class="seg">${opts.map(([v,l])=>`<button data-seg="${key}" data-v="${v}" class="${val===v?'on':''}">${h(l)}</button>`).join('')}</span>`}
+function vSettings(){
+ const hasTTS='speechSynthesis' in window;
+ let o=`<div class="crumb"><button class="btn ghost" data-a="home">${ic('back')}<span>رجوع</span></button><h2>الإعدادات</h2></div><div class="set">`;
+ o+=`<div class="card"><h4>العرض</h4>
+  <div class="row"><label>إظهار الكلمة تحت الصورة<small>أخفِ النص إذا أراد المعالج الاعتماد على الصور فقط.</small></label>${sw('showText',SET.showText)}</div>
+  <div class="row"><label>حجم الصور</label>${seg('size',[['s','صغير'],['m','متوسط'],['l','كبير']],SET.size)}</div>
+  <div class="row"><label>المظهر</label>${seg('theme',[['','حسب الجهاز'],['light','فاتح'],['dark','داكن']],SET.theme)}</div></div>`;
+ o+=`<div class="card"><h4>الصوت</h4>
+  ${hasTTS&&VOICES.length?'':`<div class="warn">${hasTTS?'لم يُعثر على صوت عربي في هذا الجهاز. على Android: الإعدادات ← تحويل النص إلى كلام ← محرك Google ← تثبيت اللغة العربية. على iPhone: الإعدادات ← تسهيلات الاستخدام ← المحتوى المنطوق ← الأصوات ← العربية. على Windows: الإعدادات ← الوقت واللغة ← إضافة اللغة العربية مع ميزة الكلام. يمكن أيضًا تسجيل صوت خاص لكل صورة.':'هذا المتصفح لا يدعم النطق الآلي. استعمل Chrome أو Safari أو Edge، أو سجّل صوتًا خاصًا لكل صورة.'}</div>`}
+  <div class="row"><label for="voiceSel">الصوت العربي</label><select id="voiceSel">${VOICES.length?VOICES.map(v=>`<option value="${h(v.voiceURI)}" ${v.voiceURI===SET.voice?'selected':''}>${h(v.name)} (${h(v.lang)})</option>`).join(''):'<option>صوت النظام الافتراضي</option>'}</select></div>
+  <div class="row"><label for="rateIn">سرعة النطق<small>القيمة الأبطأ أوضح للمستمع.</small></label><input type="range" id="rateIn" min="0.5" max="1.3" step="0.05" value="${SET.rate}"><button class="btn" data-testvoice>${ic('play')}<span>تجربة</span></button></div>
+  <div class="row"><label>نطق الكلمة عند لمس الصورة<small>يساعد المريض على التأكد من اختياره قبل نطق الجملة.</small></label>${sw('speakTap',SET.speakTap)}</div></div>`;
+ o+=`<div class="card"><h4>وضع المعالج</h4>
+  <p class="hint">في وضع المعالج تستطيع إضافة صور حقيقية للأشخاص والأماكن والأشياء، وتسميتها، وتصنيفها، وإرفاق تسجيل صوتي، وإخفاء ما لا يحتاجه المريض.</p>
+  <div class="row"><label>تفعيل وضع المعالج</label>${sw('edit',editMode)}</div>
+  <div class="row"><label for="pinIn">رمز حماية من 4 أرقام<small>اختياري: يمنع تعديل اللوحة دون قصد. اتركه فارغًا لإلغائه.</small></label><input type="password" id="pinIn" inputmode="numeric" maxlength="4" value="${h(SET.pin)}" style="width:120px"></div></div>`;
+ o+=`<div class="card"><h4>البيانات والخصوصية</h4>
+  <p class="hint">كل الصور والتسجيلات والأسماء محفوظة داخل هذا الجهاز فقط، ولا تُرسل إلى أي خادم. احفظ نسخة احتياطية قبل تغيير الهاتف أو مسح بيانات المتصفح.</p>
+  <div class="row" style="gap:8px"><button class="btn" data-export>${ic('down')}<span>تنزيل نسخة احتياطية</span></button>
+  <label class="btn" style="flex:none;min-width:0;cursor:pointer">${ic('up')}<span>استرجاع نسخة</span><input type="file" id="importIn" accept="application/json,.json" hidden></label>
+  <button class="btn dan" data-reset>${ic('trash')}<span>إعادة ضبط التطبيق</span></button></div>
+  ${Store.db?'':'<div class="warn">التخزين المحلي غير متاح في هذه النافذة؛ ستضيع التعديلات عند إغلاقها. افتح التطبيق المثبّت أو متصفحًا عاديًا.</div>'}</div>`;
+ return o+`</div>`;
+}
+function render(){
+ renderHeader();renderBar();renderActs();
+ const v=$('#view');v.classList.toggle('edit',editMode);
+ let o='';
+ switch(VIEW.t){case 'group':o=vGroup(VIEW.id);break;case 'slot':o=vSlot(VIEW.k);break;case 'favs':o=vList('favs');break;case 'hist':o=vList('hist');break;case 'settings':o=vSettings();break;default:o=vHome()}
+ v.innerHTML=o;
+}
+function go(nv){if(VIEW.t!=='slot')PREV=VIEW;VIEW=nv;render();$('#view').scrollTop=0}
+
+/* ---------------- picking ---------------- */
+function pick(it){
+ USER.usage[it.id]=(USER.usage[it.id]||0)+1;saveSoon(['user']);
+ if(it.slot==='say'){speakItem(it);addHist({say:it.id});flash(document.querySelector(`[data-it="${CSS.escape(it.id)}"]`));return}
+ let k=it.slot;
+ if(it.person){ if(VIEW.t==='slot') k=VIEW.k==='obj'?'obj':'who'; else k=(!ST.who&&!ST.act)?'who':'obj' }
+ if(ST[k]) STACK=STACK.filter(x=>x!==k);
+ ST[k]=it.id;STACK.push(k);
+ if(SET.speakTap) speakItem(it);
+ if(VIEW.t==='slot'){VIEW=PREV;render()} else renderBar();
+ flash(document.querySelector(`.slot[data-slot="${k}"]`));
+}
+function flash(el){if(!el)return;el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
+function stateKey(st,order){return order.map(k=>st[k]||'').join('|')}
+function addHist(e){
+ const key=e.say||stateKey(e.st,e.order);
+ HIST=HIST.filter(x=>(x.say||stateKey(x.st,x.order))!==key);
+ HIST.unshift(Object.assign({at:Date.now()},e));HIST=HIST.slice(0,40);save(['hist']);
+}
+function speakSentence(){
+ const c=compose();
+ if(!c.text&&!c.segs.length){toast('اختر صورة واحدة على الأقل');return}
+ const bar=$('#bar');bar.classList.add('speaking');
+ playSegs(c.segs.length?c.segs:[{text:c.text}],()=>bar.classList.remove('speaking'));
+ setTimeout(()=>bar.classList.remove('speaking'),8000);
+ addHist({st:Object.assign({},ST),order:ORDER.slice()});
+}
+function loadSentence(f){ST=Object.assign({who:null,act:null,obj:null,where:null,when:null},f.st);ORDER=f.order.slice();STACK=ORDER.filter(k=>ST[k]);go({t:'home'})}
+
+/* ---------------- editors ---------------- */
+function modal(html){const r=$('#modalRoot');r.innerHTML=`<div class="mback" data-mclose><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;const f=r.querySelector('input,select,button');}
+function closeModal(){stopRec();$('#modalRoot').innerHTML=''}
+function resizeImage(file,max){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{let w=im.width,hh=im.height;const s=Math.min(1,max/Math.max(w,hh));w=Math.round(w*s);hh=Math.round(hh*s);const c=document.createElement('canvas');c.width=w;c.height=hh;c.getContext('2d').drawImage(im,0,0,w,hh);res(c.toDataURL('image/jpeg',.85))};im.onerror=rej;im.src=fr.result};fr.onerror=rej;fr.readAsDataURL(file)})}
+const fileToData=f=>new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(f)});
+
+let DRAFT=null, REC=null;
+function stopRec(){if(REC){try{REC.rec.state!=='inactive'&&REC.rec.stop()}catch(e){}try{REC.stream.getTracks().forEach(t=>t.stop())}catch(e){}REC=null}}
+function openItemEditor(id,preset){
+ const base=id?ITEM[id]:null;
+ DRAFT=base?JSON.parse(JSON.stringify(base)):Object.assign({id:uid('c'),custom:true,slot:'obj',cats:[],t:'',e:'',g:'m'},preset||{});
+ DRAFT._new=!base;drawItemEditor();
+}
+function drawItemEditor(){
+ const d=DRAFT, isDef=!d.custom, isPerson=!!d.person;
+ const relOpts=RELS.map(r=>`<option ${d.rel===r[0]?'selected':''}>${h(r[0])}</option>`).join('')+`<option value="__o" ${d.rel&&!relInfo(d.rel)?'selected':''}>أخرى</option>`;
+ const slotSel=!isDef&&!isPerson?`<label class="fld"><span>نوع الصورة (الخانة في الجملة)</span><select id="e_slot">${[['who','مَن؟ — شخص'],['act','ماذا يفعل؟ — فعل أو قصد'],['obj','ماذا؟ — شيء أو أداة'],['where','أين؟ — مكان'],['when','متى؟ — زمان'],['say','عبارة جاهزة تُنطق فورًا']].map(([v,l])=>`<option value="${v}" ${d.slot===v?'selected':''}>${l}</option>`).join('')}</select></label>`:'';
+ const gs=GROUPS.map(g=>`<button type="button" class="chip ${d.cats.includes(g.id)?'on':''}" data-cat="${h(g.id)}">${h(g.icon)} ${h(g.name)}</button>`).join('');
+ modal(`<h3><span>${d._new?(isPerson?'إضافة شخص':'إضافة صورة'):'تعديل: '+h(label(d))}</span><button class="ib" data-mclosebtn aria-label="إغلاق">${ic('x')}</button></h3>
+ <div class="fld"><span>الصورة</span><div class="prev"><div class="pv" id="e_pv">${pic(d)}</div><div style="display:grid;gap:8px">
+   <label class="btn" style="cursor:pointer">${ic('img')}<span>اختيار صورة من الجهاز</span><input type="file" id="e_img" accept="image/*" hidden></label>
+   ${d.img?`<button class="btn ghost" data-rmimg>إزالة الصورة الحقيقية</button>`:''}
+   <input type="text" id="e_emo" value="${h((d.e||'').replace('​',''))}" placeholder="أو رمز بديل" style="width:150px" aria-label="رمز بديل"></div></div></div>
+ ${isPerson?`<label class="fld"><span>صلة القرابة</span><select id="e_rel">${relOpts}</select></label>
+   <label class="fld"><span>ما يظهر تحت الصورة</span><input type="text" id="e_t" value="${h(d.t)}" placeholder="مثال: زوجتي"></label>
+   <label class="fld"><span>اسم الشخص (يُنطق في الجملة)</span><input type="text" id="e_name" value="${h(d.name||'')}" placeholder="مثال: فاطمة"></label>
+   <div class="fld"><span>الجنس (لتصريف الفعل بصورة صحيحة)</span>${seg('g',[['m','ذكر'],['f','أنثى']],d.g)}</div>
+   <div class="row"><label>إظهاره في الواجهة الرئيسية</label>${sw('pin',!!d.pin)}</div>`
+ :`<label class="fld"><span>الكلمة أو العبارة</span><input type="text" id="e_t" value="${h(d.t)}" ${isDef&&d.slot==='act'?'readonly':''}></label>
+   ${isDef&&d.slot==='act'?'<p class="hint">الأفعال الأصلية تُصرَّف تلقائيًا حسب الشخص، لذلك لا يُعدَّل نصها. يمكنك إضافة فعل جديد بصيغة ثابتة.</p>':''}
+   ${slotSel}
+   ${d.slot==='obj'?`<div class="fld"><span>الجنس النحوي</span>${seg('g',[['m','مذكر'],['f','مؤنث']],d.g||'m')}</div>`:''}
+   <div class="fld"><span>المجموعات</span><div class="chips">${gs}</div></div>`}
+ <div class="fld"><span>تسجيل صوتي خاص (صوت أحد أفراد العائلة مثلًا)</span><div class="row" style="padding:0;gap:8px" id="e_audio">${audioCtl()}</div></div>
+ ${!isPerson||!d._new?`<div class="row"><label>إخفاء عن المريض</label>${sw('hidden',!!d.hidden)}</div>`:''}
+ <div class="mfoot"><div><button class="btn pri" data-esave>حفظ</button><button class="btn ghost" data-mclosebtn>إلغاء</button></div>
+ <div>${d.custom&&!d._new?`<button class="btn dan" data-edel>${ic('trash')}<span id="delTxt">حذف</span></button>`:''}${isDef&&USER.items[d.id]?`<button class="btn ghost" data-erestore>استرجاع الأصل</button>`:''}</div></div>`);
+}
+function audioCtl(){
+ const d=DRAFT;
+ if(REC) return `<span class="recdot"></span><span>جارٍ التسجيل…</span><button class="btn dan" data-recstop>إيقاف</button>`;
+ return `${d.audio?`<button class="btn" data-recplay>${ic('play')}<span>استماع</span></button><button class="btn ghost" data-recrm>حذف التسجيل</button>`:''}
+  <button class="btn" data-rec>${ic('mic')}<span>${d.audio?'إعادة التسجيل':'تسجيل'}</span></button>
+  <label class="btn ghost" style="cursor:pointer">${ic('up')}<span>ملف صوتي</span><input type="file" id="e_aud" accept="audio/*" hidden></label>`;
+}
+function readDraftFields(){
+ const d=DRAFT, t=$('#e_t'), n=$('#e_name'), e=$('#e_emo'), sl=$('#e_slot');
+ if(t&&!t.readOnly) d.t=t.value.trim(); if(n) d.name=n.value.trim(); if(e) d.e=e.value.trim();
+ if(sl) d.slot=sl.value;
+}
+async function startRec(){
+ try{
+  if(!navigator.mediaDevices||!window.MediaRecorder) throw 0;
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  const rec=new MediaRecorder(stream);const chunks=[];
+  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  rec.onstop=async()=>{const b=new Blob(chunks,{type:rec.mimeType||'audio/webm'});DRAFT.audio=await fileToData(b);stream.getTracks().forEach(t=>t.stop());REC=null;$('#e_audio').innerHTML=audioCtl()};
+  REC={rec,stream};rec.start();$('#e_audio').innerHTML=audioCtl();
+ }catch(e){toast('لا يمكن استعمال الميكروفون هنا. اختر «ملف صوتي» بدلًا من ذلك.')}
+}
+function saveDraft(){
+ readDraftFields();const d=DRAFT;
+ if(!d.t&&!d.name){toast('اكتب الكلمة أو الاسم أولًا');return}
+ if(d.person&&!d.t) d.t=d.name;
+ if(!d.custom){
+  const ov={};['img','audio','e','g','pin','hidden','name','t','rel','cats'].forEach(k=>{if(JSON.stringify(d[k])!==JSON.stringify(D.find(x=>x.id===d.id)[k]))ov[k]=d[k]});
+  if(Object.keys(ov).length) USER.items[d.id]=ov; else delete USER.items[d.id];
+ } else {
+  if(!d.person&&!d.cats.length){toast('اختر مجموعة واحدة على الأقل');return}
+  const r=Object.assign({},d);delete r._new;
+  if(r.slot==='act'){r.fixed=true}
+  if(r.slot==='who'&&!r.person){r.pr=0}
+  USER.items[d.id]=r;
+ }
+ save(['user']);rebuild();closeModal();render();toast('تم الحفظ');
+}
+function openPersonNew(){openItemEditor(null,{slot:'who',person:true,cats:['people'],rel:'الزوجة',t:'زوجتي',name:'',g:'f',e:'👤',pin:true})}
+function openGroupEditor(gid){
+ const base=gid?GROUP[gid]:null;
+ DRAFT=base?Object.assign({},base):{id:uid('g'),custom:true,name:'',icon:'⭐',color:'#2F6F8F',_new:true};
+ const cols=['#2F6F8F','#B4572E','#B08A1E','#A23B4A','#7A5C9E','#2E7D7A','#4A6FA5','#8C6D2F','#5B6B7A','#3B7D4F','#9A4F7D','#6B7F2A','#2F6FB0','#6E55A0','#3F6E5A','#C8372D'];
+ modal(`<h3><span>${DRAFT._new?'مجموعة جديدة':'تعديل المجموعة'}</span><button class="ib" data-mclosebtn aria-label="إغلاق">${ic('x')}</button></h3>
+  <label class="fld"><span>اسم المجموعة</span><input type="text" id="g_name" value="${h(DRAFT.name)}" placeholder="مثال: البستان"></label>
+  <label class="fld"><span>الرمز</span><input type="text" id="g_icon" value="${h(DRAFT.icon)}" style="width:110px;font-size:24px"></label>
+  <div class="fld"><span>اللون</span><div class="swatches">${cols.map(c=>`<button type="button" data-col="${c}" class="${DRAFT.color===c?'on':''}" style="background:${c}" aria-label="لون"></button>`).join('')}</div></div>
+  ${DRAFT._new?'':`<div class="row"><label>إخفاء المجموعة عن المريض</label>${sw('hidden',!!DRAFT.hidden)}</div>`}
+  <div class="mfoot"><div><button class="btn pri" data-gsave>حفظ</button><button class="btn ghost" data-mclosebtn>إلغاء</button></div>
+  <div>${DRAFT.custom&&!DRAFT._new?`<button class="btn dan" data-gdel>${ic('trash')}<span id="delTxt">حذف المجموعة</span></button>`:''}</div></div>`);
+}
+function saveGroup(){
+ const d=DRAFT;d.name=$('#g_name').value.trim();d.icon=$('#g_icon').value.trim()||'⭐';
+ if(!d.name){toast('اكتب اسم المجموعة');return}
+ if(d.custom){const r=Object.assign({},d);delete r._new;USER.groups[d.id]=r}
+ else{const b=GROUPS0.find(g=>g.id===d.id);const ov={};['name','icon','color','hidden'].forEach(k=>{if(d[k]!==b[k])ov[k]=d[k]});USER.groups[d.id]=ov}
+ save(['user']);rebuild();closeModal();render();toast('تم الحفظ');
+}
+let pinCb=null;
+function needPin(cb){
+ if(!SET.pin){cb();return}
+ pinCb=cb;
+ modal(`<h3><span>رمز المعالج</span><button class="ib" data-mclosebtn aria-label="إغلاق">${ic('x')}</button></h3>
+  <input type="password" id="pinChk" class="pin" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="الرمز">
+  <div class="mfoot"><div><button class="btn pri" data-pinok>دخول</button></div></div>`);
+ setTimeout(()=>{const p=$('#pinChk');p&&p.focus()},50);
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button,[data-mclose],label');if(!t)return;
+ const ds=t.dataset;
+ if(ds.mclose!==undefined&&e.target===t){closeModal();return}
+ if(ds.mclosebtn!==undefined){closeModal();return}
+ if(ds.say){stopAll();tts(ds.say);addHist({say:ds.say==='نعم'?'s_yes':'s_no'});flash(t);return}
+ if(t.id==='sosBtn'){go({t:'group',id:'emerg'});return}
+ if(t.id==='favBtn'){go({t:'favs'});return}
+ if(t.id==='setBtn'){needPin(()=>go({t:'settings'}));return}
+ if(t.id==='editBtn'){ if(editMode){editMode=false;render()} else needPin(()=>{editMode=true;closeModal();render();toast('وضع المعالج مفعّل')});return}
+ if(ds.a){
+  switch(ds.a){
+   case 'speak':speakSentence();break;
+   case 'undo':{const k=STACK.pop();if(k){ST[k]=null;renderBar()}else toast('الجملة فارغة');break}
+   case 'clear':ST={who:null,act:null,obj:null,where:null,when:null};STACK=[];reorder=false;stopAll();renderBar();renderActs();break;
+   case 'order':reorder=!reorder;renderBar();renderActs();if(reorder)toast('استعمل الأسهم لتحريك الخانات');break;
+   case 'fav':{const c=compose();if(!c.text){toast('كوّن جملة أولًا');break}
+     const key=stateKey(ST,ORDER);if(FAVS.some(f=>stateKey(f.st,f.order)===key)){toast('الجملة محفوظة من قبل');break}
+     FAVS.unshift({st:Object.assign({},ST),order:ORDER.slice(),at:Date.now()});save(['favs']);toast('حُفظت في المفضلة');break}
+   case 'hist':go({t:'hist'});break;
+   case 'home':reorder=false;go({t:'home'});break;
+   case 'back':go(PREV&&PREV.t!=='slot'?PREV:{t:'home'});break;
+  } return;
+ }
+ if(ds.mv!==undefined){const i=+ds.mv,j=i+(+ds.d);[ORDER[i],ORDER[j]]=[ORDER[j],ORDER[i]];renderBar();return}
+ if(ds.slot&&!reorder){go({t:'slot',k:ds.slot});return}
+ if(ds.g){ if(editMode&&e.detail!==-1){} go({t:'group',id:ds.g});return}
+ if(ds.it){const it=ITEM[ds.it];if(!it)return; if(editMode){openItemEditor(it.id);return} pick(it);return}
+ if(ds.addgroup!==undefined){openGroupEditor(null);return}
+ if(ds.editgroup){openGroupEditor(ds.editgroup);return}
+ if(ds.addperson!==undefined){openPersonNew();return}
+ if(ds.additem){openItemEditor(null,{cats:[ds.additem],slot:ds.additem==='places'?'where':ds.additem==='time'?'when':'obj'});return}
+ if(ds.cat){const c=ds.cat;DRAFT.cats=DRAFT.cats.includes(c)?DRAFT.cats.filter(x=>x!==c):DRAFT.cats.concat(c);t.classList.toggle('on');return}
+ if(ds.col){DRAFT.color=ds.col;t.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===t));return}
+ if(ds.seg){ const k=ds.seg,v=ds.v;
+   if($('#modalRoot').innerHTML){DRAFT[k]=v;t.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===t));return}
+   SET[k]=v;save(['set']);render();return}
+ if(ds.sw){const k=ds.sw;
+   if($('#modalRoot').innerHTML){DRAFT[k]=!DRAFT[k];t.classList.toggle('on',DRAFT[k]);t.setAttribute('aria-checked',DRAFT[k]);return}
+   if(k==='edit'){editMode=!editMode;render();return}
+   SET[k]=!SET[k];save(['set']);render();return}
+ if(ds.rmimg!==undefined){readDraftFields();DRAFT.img=null;drawItemEditor();return}
+ if(ds.rec!==undefined){startRec();return}
+ if(ds.recstop!==undefined){stopRec_keep();return}
+ if(ds.recplay!==undefined){playSegs([{audio:DRAFT.audio}]);return}
+ if(ds.recrm!==undefined){delete DRAFT.audio;$('#e_audio').innerHTML=audioCtl();return}
+ if(ds.esave!==undefined){saveDraft();return}
+ if(ds.edel!==undefined){const s=$('#delTxt');if(s.dataset.c){delete USER.items[DRAFT.id];for(const k in ST)if(ST[k]===DRAFT.id)ST[k]=null;save(['user']);rebuild();closeModal();render();toast('تم الحذف')}else{s.dataset.c=1;s.textContent='تأكيد الحذف'}return}
+ if(ds.erestore!==undefined){delete USER.items[DRAFT.id];save(['user']);rebuild();closeModal();render();toast('أُعيدت الصورة الأصلية');return}
+ if(ds.gsave!==undefined){saveGroup();return}
+ if(ds.gdel!==undefined){const s=$('#delTxt');if(s.dataset.c){delete USER.groups[DRAFT.id];Object.values(USER.items).forEach(r=>{if(r.cats)r.cats=r.cats.filter(c=>c!==DRAFT.id)});save(['user']);rebuild();closeModal();go({t:'home'})}else{s.dataset.c=1;s.textContent='تأكيد حذف المجموعة'}return}
+ if(ds.pinok!==undefined){if($('#pinChk').value===SET.pin){const cb=pinCb;pinCb=null;closeModal();cb&&cb()}else{toast('الرمز غير صحيح');$('#pinChk').value=''}return}
+ if(ds.lspeak!==undefined){const L=ds.kind==='favs'?FAVS:HIST,f=L[+ds.lspeak];if(!f)return;
+   if(f.say){speakItem(ITEM[f.say])}else{const c=compose(f.st,f.order);playSegs(c.segs.length?c.segs:[{text:c.text}])}return}
+ if(ds.luse!==undefined){const L=ds.kind==='favs'?FAVS:HIST;loadSentence(L[+ds.luse]);return}
+ if(ds.ldel!==undefined){FAVS.splice(+ds.ldel,1);save(['favs']);render();return}
+ if(ds.lfav!==undefined){const f=HIST[+ds.lfav];if(f&&!f.say){const key=stateKey(f.st,f.order);if(!FAVS.some(x=>stateKey(x.st,x.order)===key)){FAVS.unshift(Object.assign({},f));save(['favs'])}toast('حُفظت في المفضلة')}else toast('العبارات الجاهزة موجودة دائمًا في مجموعتها');return}
+ if(ds.clearhist!==undefined){HIST=[];save(['hist']);render();return}
+ if(ds.testvoice!==undefined){stopAll();tts('أنا أريد شرب الماء في المطبخ الآن');return}
+ if(ds.export!==undefined){exportData();return}
+ if(ds.reset!==undefined){
+   if(!t.dataset.c){t.dataset.c=1;t.querySelector('span').textContent='اضغط مرة أخرى للتأكيد: سيُحذف كل شيء';return}
+   USER={items:{},groups:{},usage:{}};FAVS=[];HIST=[];SET={showText:true,size:'m',speakTap:true,rate:0.9,voice:'',pin:'',theme:''};save();rebuild();editMode=false;go({t:'home'});toast('أُعيد ضبط التطبيق');return}
+});
+function stopRec_keep(){ if(REC&&REC.rec.state!=='inactive'){REC.rec.stop()} }
+document.addEventListener('change',async e=>{
+ const t=e.target;
+ if(t.id==='e_img'&&t.files[0]){try{readDraftFields();DRAFT.img=await resizeImage(t.files[0],520);drawItemEditor()}catch(er){toast('تعذّرت قراءة الصورة')}}
+ if(t.id==='e_aud'&&t.files[0]){if(t.files[0].size>3e6){toast('الملف كبير؛ اختر تسجيلًا أقصر من دقيقة');return}DRAFT.audio=await fileToData(t.files[0]);$('#e_audio').innerHTML=audioCtl()}
+ if(t.id==='e_rel'){const R=relInfo(t.value);if(R){DRAFT.rel=R[0];DRAFT.g=R[2];$('#e_t').value=R[1];if(!DRAFT.img&&(!DRAFT.e||DRAFT.e==='👤'))DRAFT.e=R[3];readDraftFields();drawItemEditor()}else{DRAFT.rel='أخرى'}}
+ if(t.id==='voiceSel'){SET.voice=t.value;save(['set'])}
+ if(t.id==='rateIn'){SET.rate=+t.value;save(['set'])}
+ if(t.id==='pinIn'){const v=t.value.replace(/\D/g,'').slice(0,4);if(v&&v.length!==4){toast('الرمز يجب أن يتكون من 4 أرقام');return}SET.pin=v;save(['set']);toast(v?'تم حفظ الرمز':'أُلغي الرمز')}
+ if(t.id==='importIn'&&t.files[0]){try{const j=JSON.parse(await t.files[0].text());if(!j||j.app!=='jumlati')throw 0;
+   USER=j.user||USER;SET=Object.assign(SET,j.set||{});FAVS=j.favs||[];HIST=j.hist||[];save();rebuild();go({t:'home'});toast('تم استرجاع النسخة')}catch(er){toast('هذا الملف ليس نسخة احتياطية من التطبيق')}}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modalRoot').innerHTML)closeModal();if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='pinChk')document.querySelector('[data-pinok]').click()});
+function exportData(){
+ try{const b=new Blob([JSON.stringify({app:'jumlati',v:1,at:new Date().toISOString(),user:USER,set:SET,favs:FAVS,hist:HIST})],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='jumlati-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast('جارٍ تنزيل النسخة الاحتياطية')}
+ catch(e){toast('التنزيل غير متاح في هذه النافذة')}
+}
+
+/* ---------------- boot ---------------- */
+(async function(){
+ await Store.open();
+ const u=await Store.get('user'), s=await Store.get('set'), f=await Store.get('favs'), hh=await Store.get('hist');
+ const first=!s;
+ if(u)USER=Object.assign({items:{},groups:{},usage:{}},u); if(s)SET=Object.assign(SET,s); if(f)FAVS=f; if(hh)HIST=hh;
+ rebuild();
+ if(first){ // example sentence on first launch
+  ST={who:'p0',act:'v_drink',obj:'n_water',where:'l_kitchen',when:'t_now'};STACK=['who','act','obj','where','when'];
+  FAVS=[{st:{who:'p0',act:'v_want',obj:'n_water'},order:ORDER.slice(),at:Date.now()},{st:{who:'f3',act:'i_bring',obj:'n_med',when:'t_ameal'},order:ORDER.slice(),at:Date.now()},{st:{act:'v_hurts',obj:'b_head'},order:ORDER.slice(),at:Date.now()},{st:{act:'v_go',where:'l_wc'},order:ORDER.slice(),at:Date.now()}];
+  save();
+ }
+ render();
+ if('serviceWorker' in navigator&&location.protocol==='https:'&&document.querySelector('link[rel=manifest]')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+})();
+})();
+</script>
+
+</body>
+</html>
